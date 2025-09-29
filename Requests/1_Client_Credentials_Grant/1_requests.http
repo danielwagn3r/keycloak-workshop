@@ -1,0 +1,61 @@
+##########
+#
+# Client Credentials Grant
+#
+# https://auth0.com/docs/authorization/flows/client-credentials-flow
+# https://auth0.com/docs/authorization/flows/call-your-api-using-the-client-credentials-flow
+#
+##########
+
+
+#####
+# Configuration --> use Machine-to-Machine in Auth0
+
+@audience=http://calculator-api
+
+# @client_id= vscode-advanced
+# @client_secret = tj6KfJnmAMnYG6dq46hmbF52yetpWQr6
+
+@client_id= vscode-simple
+@client_secret = nLpS1Be45oarhOtWpSFHcbb0fkOdoZMm
+
+#
+#####
+
+
+# Get Access Token for Client (double-only)
+# @name token 
+POST {{issuer}}/protocol/openid-connect/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=client_credentials
+&client_id={{client_id}}
+&client_secret={{client_secret}}
+&audience=calculator-api
+&scope=calc:double calc:square
+
+###
+
+@access_token = {{token.response.body.$.access_token}}
+
+# Call API
+GET {{api}}/identity
+Authorization: Bearer {{access_token}}
+
+###
+
+@access_token = {{token.response.body.$.access_token}}
+
+# Call API
+GET {{api}}/calc/Double/2
+Authorization: Bearer {{access_token}}
+
+
+###
+
+@access_token = {{token.response.body.$.access_token}}
+
+# Call API
+GET {{api}}/calc/Square/2
+Authorization: Bearer {{access_token}}
+
