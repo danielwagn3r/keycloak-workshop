@@ -1,0 +1,86 @@
+volumes:
+  postgres_data:
+
+networks:
+  keycloak:
+
+services:
+  postgres:
+    image: postgres:17
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: password
+    networks:
+      - keycloak
+    restart: unless-stopped # restart policy
+    deploy: # deployment options
+      mode: replicated
+      replicas: 1
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U keycloak"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    build:
+      context: .
+      args:
+       KEYCLOAK_VERSION: 26.3
+    command:
+      - 'start'
+      - '--optimized'
+    environment:
+      # change these values to point to a running postgres instance
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres/keycloak
+      #KC_DB_ADDR: postgres
+      #KC_DB_DATABASE: keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: password
+      KC_DB_SCHEMA: public
+      KC_PROXY: edge
+      KC_PROXY_HEADERS: xforwarded
+      KC_PROXY_ADDRESS_FORWARDING: true
+      KC_HOSTNAME: 'https://login.vabund.at'
+      KC_HOSTNAME_STRICT: false
+      KC_HOSTNAME_STRICT_HTTPS: false
+      KC_HTTP_ENABLED: true
+      KC_HEALTH_ENABLED: true
+      KC_METRICS_ENABLED: true
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: Pa55w0rd
+      KC_SPI_THEME_WELCOME_THEME: 'scim'
+      KC_SPI_REALM_RESTAPI_EXTENSION_SCIM_LICENSE_KEY: eyJhbGciOiJFUzUxMiJ9.eyJpc3MiOiJwYXNjYWwga251ZXBwZWwiLCJzdWIiOiIxNTY3IiwiYXVkIjoiMTU2NyIsImV4cCI6MTc1OTg4MTYwMH0.AFvuYw4ShScoHHZT7-kq_FlXFf00BIFhzC5WqzB9IBG_2FPW4se28qzmrikBJ28dyhhgwvI6lqntPTbTvrAXNzVmAQBnril80yvOMFfPixiEnHBE9_v6RA5pw-ohBmY1i9VfO57RnM2JjmYPlNxylvn9gMTQpMqPHa5dQ-BC4jcvD-4N
+      # Uncomment the line below if you want to specify JDBC parameters. The parameter below is just an example, and it shouldn't be used in production without knowledge. It is highly recommended that you read the PostgreSQL JDBC driver documentation in order to use it.
+      #JDBC_PARAMS: "ssl=true"
+    networks:
+      - keycloak
+    ports:
+      - 8080:8080
+        #- 8787:8787 # debug port
+    depends_on:
+      - postgres
+    restart: unless-stopped # restart policy
+    deploy: # deployment options
+      mode: replicated
+      replicas: 1
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5

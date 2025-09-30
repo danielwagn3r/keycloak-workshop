@@ -1,0 +1,74 @@
+##########
+#
+# Implict Flow
+#
+# https://auth0.com/device-flow/#!
+# https://auth0.com/docs/authorization/flows/call-your-api-using-the-device-authorization-flow
+#
+##########
+
+
+#####
+# Configuration --> use Native App in Auth0  and enable Device Code Grant
+
+@client_id = device
+@client_secret = XGRIqLComG0aeqOakcma3WVACgEnwWJ9
+
+#
+#####
+
+# Get Device Code
+# @name devicecode
+
+POST {{issuer}}/protocol/openid-connect/auth/device
+Content-Type: application/x-www-form-urlencoded
+
+client_id={{client_id}}
+&client_secret={{client_secret}}
+&scope=openid email profile offline_access
+&audience={{audience}}
+
+
+###
+
+@device_code = {{devicecode.response.body.$.device_code}}
+@user_code = {{devicecode.response.body.$.user_code}}
+
+# Get Token
+# @name token
+
+
+POST {{issuer}}/protocol/openid-connect/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=urn:ietf:params:oauth:grant-type:device_code
+&client_id={{client_id}}
+&client_secret={{client_secret}}
+&device_code={{device_code}}
+
+###
+
+@access_token = {{token.response.body.$.access_token}}
+@id_token = {{token.response.body.$.id_token}}
+
+# Get Userinfo with identity token
+GET {{issuer}}/protocol/openid-connect/userinfo
+Authorization: Bearer {{access_token}}
+
+###
+
+# Double Calucator API
+GET http://localhost:5001/api/double/3
+Authorization: Bearer {{access_token}}
+
+###
+
+# Square Calucator API
+GET http://localhost:5001/api/square/3
+Authorization: Bearer {{access_token}}
+
+###
+
+# Tokeninfo Calucator API
+GET http://localhost:5001/api/tokeninfo
+Authorization: Bearer {{access_token}}

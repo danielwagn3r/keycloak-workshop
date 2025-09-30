@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>dotnet-RefreshClient-B0EE58B1-180D-49F3-AE82-7FE09A317535</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+      <PackageReference Include="Duende.AccessTokenManagement" Version="4.0.1" />
+      <PackageReference Include="Duende.IdentityModel" Version="7.1.0" />
+      <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="9.0.9" />
+      <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.9" />
+      <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.9" />
+      <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.14.0" />
+      <PackageReference Include="Serilog" Version="4.3.0" />
+      <PackageReference Include="Serilog.Extensions.Hosting" Version="9.0.0" />
+      <PackageReference Include="Serilog.Extensions.Logging" Version="9.0.2" />
+      <PackageReference Include="Serilog.Formatting.Compact" Version="3.0.0" />
+      <PackageReference Include="Serilog.Settings.Configuration" Version="9.0.0" />
+      <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
+  </ItemGroup>
+</Project>

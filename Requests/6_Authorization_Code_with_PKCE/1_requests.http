@@ -1,0 +1,44 @@
+##########
+#
+# Authorization Code Grant with PKCE
+#
+# https://auth0.com/docs/authorization/flows/call-your-api-using-the-authorization-code-flow-with-pkce
+#
+##########
+
+
+#####
+# Configuration --> use Native App in Auth0
+# generate custom code_challenge and code_verifier with auth-code-pkce.js
+
+@client_id= web
+@client_secret = ycFT1GqaA5fBnXGEM0GY0zFuoB11hYjf
+@redirect_uri = https://localhost:5002/signin-oidc
+@code_challenge = JiCfjR0ceTNiBRcxghqjnWxBwRl9o2B7ogdxpGl2tDw
+@code_verifier = aj1cBUxqDQvrueJKvr-taJkWPpmuodt-kqX5Z4KukSM
+@scope = openid email profile offline_access calc:double
+#
+#####
+
+
+# Authorize 
+GET {{issuer}}/protocol/openid-connect/auth?state=l337&redirect_uri={{redirect_uri}}&code_challenge_method=S256&code_challenge={{code_challenge}}&client_id={{client_id}}&response_type=code&scope={{scope}}&audience={{audience}}&prompt=consent
+
+###
+
+# Get access and refresh token
+# @name token
+
+@code = e4640997-593a-4d4a-b046-202af3868bb4.b2a5ad18-b37f-4c0b-adb0-f4e4e9808ced.87f5e6ae-01f9-470c-a8f7-3f174fe14935
+
+
+POST {{issuer}}/protocol/openid-connect/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=authorization_code
+&client_id={{client_id}}
+&client_secret={{client_secret}}
+&code_verifier={{code_verifier}}
+&code={{code}}
+&redirect_uri={{redirect_uri}}
+

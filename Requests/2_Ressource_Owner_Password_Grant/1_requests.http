@@ -1,0 +1,105 @@
+##########
+#
+# Ressource Owner Password Grant
+#
+# https://auth0.com/docs/authorization/flows/resource-owner-password-flow
+# https://auth0.com/docs/authorization/flows/call-your-api-using-resource-owner-password-flow
+#
+##########
+
+
+#####
+# Configuration --> use Regular Web App in Auth0
+# requires manual configuration of password flow, see auth0-management-api.http
+
+@audience=calculator-api
+
+@client_id= vscode-advanced
+@client_secret = tj6KfJnmAMnYG6dq46hmbF52yetpWQr6
+
+# @client_id= vscode-simple
+# @client_secret = nLpS1Be45oarhOtWpSFHcbb0fkOdoZMm
+
+@username = johndoe
+@password = super!s3cr3t
+
+
+#
+#####
+
+
+# Get Access Token for Ressource Owner App
+# @name token
+POST {{issuer}}/protocol/openid-connect/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=password
+&client_id={{client_id}}
+&client_secret={{client_secret}}
+&username={{username}}
+&password={{password}}
+&scope=openid email profile calc:double
+&audience={{audience}}
+
+###
+
+@access_token = {{token.response.body.$.access_token}}
+@id_token = {{token.response.body.$.id_token}}
+
+# Get Userinfo with access token
+POST {{issuer}}/protocol/openid-connect/userinfo
+Authorization: Bearer {{access_token}}
+
+###
+
+# Get Access Token for Ressource Owner App
+# @name token2
+POST {{issuer}}/protocol/openid-connect/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=password
+&client_id={{client_id}}
+&client_secret={{client_secret}}
+&username={{username}}
+&password={{password}}
+&scope=openid email profile offline_access
+&audience={{audience}}
+
+
+###
+
+@access_token2 = {{token2.response.body.$.access_token}}
+@id_token2 = {{token2.response.body.$.id_token}}
+@refresh_token2 = {{token2.response.body.$.refresh_token}}
+
+# Tokeninfo Calucator API
+GET https://localhost:6001/identity
+Authorization: Bearer {{access_token}}
+
+###
+
+# Tokeninfo Calucator API
+GET http://localhost:5001/api/tokeninfo
+Authorization: Bearer {{access_token2}}
+
+###
+
+# Double Calucator API
+GET http://localhost:5001/api/double/3
+Authorization: Bearer {{access_token}}
+
+###
+
+# Square Calucator API
+GET http://localhost:5001/api/square/3
+Authorization: Bearer {{access_token2}}
+
+###
+# Refresh Token for Ressource Owner App
+POST {{issuer}}/protocol/openid-connect/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=refresh_token
+&client_id={{client_id}}
+&client_secret={{client_secret}}
+&refresh_token={{refresh_token2}}

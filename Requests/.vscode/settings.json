@@ -1,0 +1,9 @@
+{
+    "rest-client.environmentVariables": {
+        "$shared": {
+            "api": "https://localhost:6001",
+            "issuer": "https://login.vabund.at/realms/master",
+            "audience": "calculator-api"
+        }
+    }
+}
